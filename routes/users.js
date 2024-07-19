@@ -1,5 +1,10 @@
 const { Router } = require("express");
-const { registerUser, loginUser } = require("../controllers/userControllers");
+const {
+  registerUser,
+  loginUser,
+  logoutUser,
+} = require("../controllers/userControllers");
+const passport = require("../config/passport");
 
 const router = Router();
 
@@ -10,7 +15,20 @@ router
 
 router
   .route("/login")
-  .get((req, res) => res.status(200).render("register"))
+  .get((req, res) => res.status(200).render("login"))
   .post(loginUser);
+
+router.get(
+  "/profile",
+  passport.authenticate("jwt", {
+    session: false,
+    failureRedirect: "/users/login",
+  }),
+  (req, res) => {
+    res.render("profile", { username: req.user.username });
+  }
+);
+
+router.get("/logout", logoutUser);
 
 module.exports = router;
